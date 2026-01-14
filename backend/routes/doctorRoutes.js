@@ -12,3 +12,4 @@ router.get('/specializations', getSpecializations);
 router.get('/:id', getDoctorById);
 
 export default router;
+ 

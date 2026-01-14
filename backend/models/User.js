@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide an email'],
     unique: true,
     lowercase: true,
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email'],
+    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/, 'Please provide a valid email'],
   },
   password: {
     type: String,
@@ -33,6 +33,14 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   otpExpiry: {
+    type: Date,
+    select: false,
+  },
+  resetToken: {
+    type: String,
+    select: false,
+  },
+  resetTokenExpiry: {
     type: Date,
     select: false,
   },

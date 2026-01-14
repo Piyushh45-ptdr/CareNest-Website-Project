@@ -53,12 +53,23 @@ const Signup = () => {
         formData.role
       );
 
+      // Clear form data
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        role: "patient",
+      });
+
       // Store email and role for OTP verification
       localStorage.setItem("registrationEmail", formData.email);
       localStorage.setItem("registrationRole", formData.role);
-      navigate("/verify-otp");
+      
+      navigate("/otp-verification", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      setError(err.message || err.response?.data?.message || "Registration failed. Please try again.");
+      console.error("Signup error:", err);
     } finally {
       setLoading(false);
     }

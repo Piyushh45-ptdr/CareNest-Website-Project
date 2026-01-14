@@ -6,11 +6,24 @@ import authRoutes from './routes/authRoutes.js';
 import doctorRoutes from './routes/doctorRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
+import passwordRoutes from './routes/passwordRoutes.js';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 6400;
+const PORT = process.env.PORT || 6402;
+
+// Validate required environment variables
+if (!process.env.JWT_SECRET) {
+  console.error('❌ ERROR: JWT_SECRET environment variable is not set');
+  process.exit(1);
+}
+
+if (!process.env.MONGO_URI) {
+  console.error('❌ ERROR: MONGO_URI environment variable is not set');
+  process.exit(1);
+}
 
 // Middleware
 app.use(
@@ -30,6 +43,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/password', passwordRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

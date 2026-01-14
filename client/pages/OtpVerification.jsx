@@ -17,7 +17,7 @@ const OtpVerification = () => {
   useEffect(() => {
     const registrationEmail = localStorage.getItem("registrationEmail");
     if (!registrationEmail) {
-      navigate("/signup");
+      navigate("/signup", { replace: true });
     } else {
       setEmail(registrationEmail);
       setTimer(60);
@@ -54,15 +54,16 @@ const OtpVerification = () => {
       setLoading(true);
       await authService.verifyOTP(email, otp);
       setSuccess("Email verified successfully! Redirecting to login...");
-      
+
       localStorage.removeItem("registrationEmail");
       localStorage.removeItem("registrationRole");
-      
+
       setTimeout(() => {
-        navigate("/login");
+        navigate("/login", { replace: true });
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "OTP verification failed. Please try again.");
+      setError(err.message || err.response?.data?.message || "OTP verification failed. Please try again.");
+      console.error("OTP verification error:", err);
     } finally {
       setLoading(false);
     }
@@ -78,7 +79,8 @@ const OtpVerification = () => {
       await authService.resendOTP(email);
       setSuccess("OTP resent to your email!");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to resend OTP");
+      setError(err.message || err.response?.data?.message || "Failed to resend OTP");
+      console.error("Resend OTP error:", err);
       setCanResend(true);
     }
   };
@@ -87,7 +89,6 @@ const OtpVerification = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-secondary/5 to-transparent flex items-center">
       <div className="container">
         <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-8">
-          {/* Icon */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -120,7 +121,6 @@ const OtpVerification = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* OTP Input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Enter OTP</label>
                 <input
@@ -133,7 +133,6 @@ const OtpVerification = () => {
                 />
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
@@ -150,7 +149,6 @@ const OtpVerification = () => {
               </button>
             </form>
 
-            {/* Resend OTP */}
             <div className="text-center mt-6">
               {canResend ? (
                 <button
@@ -166,10 +164,9 @@ const OtpVerification = () => {
               )}
             </div>
 
-            {/* Back to Signup */}
             <p className="text-center text-gray-600 mt-4 text-sm">
               <button
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate("/signup", { replace: true })}
                 className="text-primary font-semibold hover:underline"
               >
                 Back to Sign Up

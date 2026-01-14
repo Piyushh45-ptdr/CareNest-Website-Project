@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, Loader } from "lucide-react";
@@ -8,10 +8,23 @@ const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // Load remembered email on component mount
+  useEffect(() => {
+    const rememberedEmail = authService.getRememberedEmail();
+    if (rememberedEmail) {
+      setFormData((prev) => ({
+        ...prev,
+        email: rememberedEmail,
+      }));
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,6 +33,10 @@ const Login = () => {
       [name]: value,
     }));
     setError("");
+  };
+
+  const handleRememberMeChange = (e) => {
+    setRememberMe(e.target.checked);
   };
 
   const handleSubmit = async (e) => {
@@ -33,15 +50,22 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const result = await authService.login(formData.email, formData.password);
-      
+      const result = await authService.login(
+        formData.email,
+        formData.password,
+        rememberMe
+      );
+
       if (result.user.role === "admin") {
-        navigate("/admin-dashboard");
+        navigate("/admin-dashboard", { replace: true });
+      } else if (result.user.role === "doctor") {
+        navigate("/doctor/dashboard", { replace: true });
       } else {
-        navigate("/patient-dashboard");
+        navigate("/patient-dashboard", { replace: true });
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
+      setError(err.message || err.response?.data?.message || "Login failed. Please try again.");
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
@@ -75,12 +99,7 @@ const Login = () => {
             </p>
 
             <div className="space-y-4">
-              {[
-                "View your appointments",
-                "Access medical records",
-                "Manage your profile",
-                "Get health reminders",
-              ].map((benefit, i) => (
+              {["View your appointments", "Access medical records", "Manage your profile", "Get health reminders"].map((benefit, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
                     <Heart className="w-4 h-4 text-primary" />
@@ -107,7 +126,6 @@ const Login = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                 <input
@@ -120,7 +138,6 @@ const Login = () => {
                 />
               </div>
 
-              {/* Password */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <input
@@ -133,18 +150,21 @@ const Login = () => {
                 />
               </div>
 
-              {/* Remember Me */}
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300" />
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={handleRememberMeChange}
+                    className="w-4 h-4 rounded border-gray-300"
+                  />
                   <span className="text-sm text-gray-600">Remember me</span>
                 </label>
-                <a href="#" className="text-sm text-primary hover:underline">
+                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                   Forgot password?
-                </a>
+                </Link>
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
@@ -161,7 +181,6 @@ const Login = () => {
               </button>
             </form>
 
-            {/* Signup Link */}
             <p className="text-center text-gray-600 mt-6">
               Don't have an account?{" "}
               <Link to="/signup" className="text-primary font-semibold hover:underline">

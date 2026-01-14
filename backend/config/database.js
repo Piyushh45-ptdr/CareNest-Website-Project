@@ -2,7 +2,12 @@ import mongoose from 'mongoose';
 
 export const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/carenest';
+    // Use environment variable - NEVER hardcode credentials
+    const mongoURI = process.env.MONGO_URI;
+    
+    if (!mongoURI) {
+      throw new Error('MONGO_URI environment variable is not set. Please configure it in .env file.');
+    }
     
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,

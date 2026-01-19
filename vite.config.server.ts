@@ -29,17 +29,20 @@ export default defineConfig({
         "buffer",
         "querystring",
         "child_process",
-        // External dependencies that should not be bundled
+        // External dependencies (IMPORTANT)
         "express",
         "cors",
-        "mongoose"
+        "mongoose",
+        "bcryptjs",       
+        "jsonwebtoken",  
+        "dotenv"         
       ],
       output: {
         format: "es",
         entryFileNames: "[name].mjs",
       },
     },
-    minify: false, // Keep readable for debugging
+    minify: false,
     sourcemap: true,
   },
   resolve: {

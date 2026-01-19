@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import path from "path";
 
-// Server build configuration
+// Vite config for SERVER (SSR / Backend bundle)
 export default defineConfig({
   build: {
     lib: {
@@ -13,9 +13,13 @@ export default defineConfig({
     outDir: "dist/server",
     target: "node22",
     ssr: true,
+
     rollupOptions: {
       external: [
-        // Node.js built-ins
+        //  Auto externalize all node built-ins
+        /^node:.*/,
+
+        //  Node core modules
         "fs",
         "path",
         "url",
@@ -29,28 +33,38 @@ export default defineConfig({
         "buffer",
         "querystring",
         "child_process",
-        // External dependencies (IMPORTANT)
+
+        // ✅ Backend-only dependencies
         "express",
         "cors",
         "mongoose",
-        "bcryptjs",       
-        "jsonwebtoken",  
-        "dotenv"         
+        "bcrypt",
+        "bcryptjs",
+        "jsonwebtoken",
+        "dotenv",
+        "nodemailer",
+        "multer",
+        "cloudinary",
+        "sharp"
       ],
+
       output: {
         format: "es",
         entryFileNames: "[name].mjs",
       },
     },
+
     minify: false,
     sourcemap: true,
   },
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
+
   define: {
     "process.env.NODE_ENV": '"production"',
   },
